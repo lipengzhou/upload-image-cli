@@ -8,6 +8,7 @@ const { program } = require('commander')
 const { compress } = require('./compress')
 const os = require('os')
 const readline = require('readline')
+const Clipboard = require('@mariozechner/clipboard')
 
 const configPath = path.join(os.homedir(), '.upload-image-cli.json')
 
@@ -195,12 +196,35 @@ const uploadFiles = async (files, format, output) => {
   }
 }
 
+const getClipboardImage = async () => {
+  const tempDir = os.tmpdir()
+  const tempFile = path.join(tempDir, `clipboard-image-${Date.now()}.png`)
+
+  try {
+    if (await Clipboard.hasImage()) {
+      const base64Image = await Clipboard.getImageBase64()
+      const buffer = Buffer.from(base64Image, 'base64')
+      fs.writeFileSync(tempFile, buffer)
+      return tempFile
+    } else {
+      throw new Error('No image found in clipboard')
+    }
+  } catch (err) {
+    console.error('Failed to read image from clipboard:', err.message)
+    throw err
+  }
+}
+
 program.action(async () => {
   const { files = [], format, output } = program.opts()
   if (!files.length) {
-    program.help({ error: true })
+    console.log('No files specified, reading from clipboard...')
+    const clipboardFile = await getClipboardImage()
+    await uploadFiles([clipboardFile], format, output)
+    fs.unlinkSync(clipboardFile)
+  } else {
+    await uploadFiles(files, format, output)
   }
-  await uploadFiles(files, format, output)
 })
 
 program.parse(process.argv)

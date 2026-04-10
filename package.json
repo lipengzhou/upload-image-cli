@@ -13,6 +13,7 @@
   "author": "lpzmail@163.com",
   "license": "MIT",
   "dependencies": {
+    "@mariozechner/clipboard": "^0.3.2",
     "axios": "^1.6.5",
     "commander": "^11.1.0",
     "dayjs": "^1.11.10",

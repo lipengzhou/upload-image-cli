@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/lpz/.claude/**)",
+      "Bash(npm whoami:*)",
+      "Bash(npm publish:*)",
+      "WebSearch",
+      "Bash(npm search:*)",
+      "Bash(npm view:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(npm install:*)"
+    ]
+  }
+}
