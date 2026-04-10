@@ -1,6 +1,6 @@
 {
   "name": "@lipengzhou/upload-image-cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A command line tool for uploading images to the GitHub repository",
   "bin": {
     "upload-image": "./index.js"
