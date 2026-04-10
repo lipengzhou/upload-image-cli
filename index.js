@@ -22,7 +22,7 @@ const getGithubConfig = () => {
     config = readConfig()
   } catch (err) {
     console.log(
-      `配置文件读取失败：${configPath}\n请先执行：upload-image init\n\n${err?.message ?? err}`
+      `Failed to read config file: ${configPath}\nPlease run first: upload-image init\n\n${err?.message ?? err}`
     )
     process.exit(1)
   }
@@ -35,7 +35,7 @@ const getGithubConfig = () => {
     !ghConfig?.token
   ) {
     console.log(
-      `配置文件内容不完整：${configPath}\n请先执行：upload-image init`
+      `Incomplete config file: ${configPath}\nPlease run first: upload-image init`
     )
     process.exit(1)
   }
@@ -60,7 +60,7 @@ const initConfig = async () => {
   if (!process.stdin.isTTY) {
     if (fs.existsSync(configPath)) {
       console.log(
-        `配置文件已存在：${configPath}\n请在交互模式下执行以确认覆盖：upload-image init`
+        `Config file already exists: ${configPath}\nPlease run in interactive mode to confirm overwrite: upload-image init`
       )
       process.exit(1)
     }
@@ -73,7 +73,7 @@ const initConfig = async () => {
 
     if (!username || !repo || !token) {
       console.log(
-        '非交互模式下需要依次提供：username、repo、branch(可选)、token'
+        'In non-interactive mode, please provide sequentially: username, repo, branch(optional), token'
       )
       process.exit(1)
     }
@@ -92,7 +92,7 @@ const initConfig = async () => {
     fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, {
       mode: 0o600,
     })
-    console.log(`配置文件已生成：${configPath}`)
+    console.log(`Config file generated: ${configPath}`)
     return
   }
 
@@ -104,21 +104,21 @@ const initConfig = async () => {
   try {
     if (fs.existsSync(configPath)) {
       const overwrite = (
-        await ask(rl, `配置文件已存在：${configPath}\n是否覆盖？(y/N) `)
+        await ask(rl, `Config file already exists: ${configPath}\nOverwrite? (y/N) `)
       )
         .trim()
         .toLowerCase()
       if (overwrite !== 'y' && overwrite !== 'yes') {
-        console.log('已取消')
+        console.log('Cancelled')
         return
       }
     }
 
-    const username = await askRequired(rl, 'GitHub 用户名/组织名：')
-    const repo = await askRequired(rl, '仓库名 repo：')
-    const branchInput = (await ask(rl, '分支名 branch（默认 master）：')).trim()
+    const username = await askRequired(rl, 'GitHub username/organization: ')
+    const repo = await askRequired(rl, 'Repo name: ')
+    const branchInput = (await ask(rl, 'Branch name (default: master): ')).trim()
     const branch = branchInput || 'master'
-    const token = await askRequired(rl, 'GitHub Token：')
+    const token = await askRequired(rl, 'GitHub Token: ')
 
     const config = {
       hosts: {
@@ -134,7 +134,7 @@ const initConfig = async () => {
     fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, {
       mode: 0o600,
     })
-    console.log(`配置文件已生成：${configPath}`)
+    console.log(`Config file generated: ${configPath}`)
   } finally {
     rl.close()
   }
@@ -142,15 +142,15 @@ const initConfig = async () => {
 
 program
   .command('init')
-  .description('交互式生成配置文件到用户目录')
+  .description('Generate config file interactively in user directory')
   .action(async () => {
     await initConfig()
   })
 
 program
-  .option('--files <files...>', '文件列表')
-  .option('-f, --format <format>', '图片格式', 'webp')
-  .option('-o, --output <format>', '输出格式: markdown|html|url|raw')
+  .option('--files <files...>', 'File list')
+  .option('-f, --format <format>', 'Image format', 'webp')
+  .option('-o, --output <format>', 'Output format: markdown|html|url|raw')
 
 const upload = async (file, ghConfig, format) => {
   const buffer = await compress(file, { format })
@@ -183,10 +183,10 @@ const uploadFiles = async (files, format, output) => {
 
   if (output === 'markdown') {
     console.log(urls.map(url => `
-![图片](${url})`).join('\n'))
+![image](${url})`).join('\n'))
   } else if (output === 'html') {
     console.log(urls.map(url => `
-<img src="${url}" alt="图片">`).join('\n'))
+<img src="${url}" alt="image">`).join('\n'))
   } else if (output === 'url') {
     console.log(urls.join('\n'))
   } else {
