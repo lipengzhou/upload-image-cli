@@ -150,6 +150,7 @@ program
 program
   .option('--files <files...>', '文件列表')
   .option('-f, --format <format>', '图片格式', 'webp')
+  .option('-o, --output <format>', '输出格式: markdown|html|url|raw')
 
 const upload = async (file, ghConfig, format) => {
   const buffer = await compress(file, { format })
@@ -168,7 +169,7 @@ const upload = async (file, ghConfig, format) => {
   return `https://cdn.jsdelivr.net/gh/${ghConfig.username}/${ghConfig.repo}@${ghConfig.branch}/${filepath}`
 }
 
-const uploadFiles = async (files, format) => {
+const uploadFiles = async (files, format, output) => {
   const ghConfig = getGithubConfig()
   const urls = []
   for (const file of files) {
@@ -179,15 +180,27 @@ const uploadFiles = async (files, format) => {
       console.log('upload failed', err)
     }
   }
-  console.log(`upload success:\n${urls.join('\n')}`)
+
+  if (output === 'markdown') {
+    console.log(urls.map(url => `
+![图片](${url})`).join('\n'))
+  } else if (output === 'html') {
+    console.log(urls.map(url => `
+<img src="${url}" alt="图片">`).join('\n'))
+  } else if (output === 'url') {
+    console.log(urls.join('\n'))
+  } else {
+    // raw 或未指定，保持默认行为
+    console.log(`upload success:\n${urls.join('\n')}`)
+  }
 }
 
 program.action(async () => {
-  const { files = [], format } = program.opts()
+  const { files = [], format, output } = program.opts()
   if (!files.length) {
     program.help({ error: true })
   }
-  await uploadFiles(files, format)
+  await uploadFiles(files, format, output)
 })
 
 program.parse(process.argv)
