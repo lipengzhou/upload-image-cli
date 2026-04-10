@@ -8,6 +8,7 @@ Upload local images to GitHub repo and get CDN links.
 - Convert to specified format (default `webp`, quality `80`)
 - Upload to GitHub via Contents API
 - Output jsDelivr CDN links
+- Support upload from clipboard (cross-platform: macOS/Windows/Linux)
 
 ## Install
 
@@ -52,16 +53,22 @@ Config example:
 # View help
 upload-image --help
 
+# Upload from clipboard
+upload-image
+
 # Upload images
 upload-image --files ./a.png ./b.jpg
 
 # Specify output format (default: webp)
 upload-image --files ./a.png -f jpeg
+
+# Upload from clipboard with markdown output
+upload-image -o markdown
 ```
 
 **Options:**
 
-- `--files <files...>` - Image file paths
+- `--files <files...>` - Image file paths (if not specified, read from clipboard)
 - `-f, --format <format>` - Image format (default: `webp`, supports `webp`/`jpeg`/`png`/`avif`)
 - `-o, --output <format>` - Output format: `markdown`|`html`|`url`|`raw` (default: `raw`)
 
