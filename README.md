@@ -1,33 +1,29 @@
 # Upload Image CLI
 
-这是一个命令行工具，用于将本地图片压缩/转码后上传到 GitHub 仓库，并输出可直接访问的图片 URL。
+Upload local images to GitHub repo and get CDN links.
 
-## 功能
+## Features
 
-- 读取本地图片并进行压缩处理：当图片 `density >= 100` 时，会将宽度缩小到原来的 1/2
-- 按指定格式转码（默认 `webp`，质量 `80`）
-- 通过 GitHub Contents API 上传到仓库的 `image/` 目录
-- 输出基于 jsDelivr 的 CDN 链接
+- Auto compress images (scale down when density >= 100)
+- Convert to specified format (default `webp`, quality `80`)
+- Upload to GitHub via Contents API
+- Output jsDelivr CDN links
 
-## 安装
+## Install
 
 ```bash
 npm i -g @lipengzhou/upload-image-cli
 ```
 
-安装后会得到命令：`upload-image`。
+## Config
 
-## 配置
-
-工具会从当前用户的 Home 目录读取配置文件：`~/.upload-image-cli.json`（Windows 下也是用户目录）。
-
-也可以通过交互式命令生成配置文件：
+Config file: `~/.upload-image-cli.json`
 
 ```bash
 upload-image init
 ```
 
-配置示例：
+Config example:
 
 ```json
 {
@@ -42,63 +38,53 @@ upload-image init
 }
 ```
 
-字段说明：
+**Token permissions:**
+- Fine-grained: `Contents: Read and write`
+- Classic: `repo` (or `public_repo` for public repos)
 
-- `username`：GitHub 用户名或组织名
-- `repo`：用于存放图片的仓库名
-- `branch`：仓库分支名（用于拼接最终访问 URL）
-- `token`：GitHub Token
-  - Fine-grained token：需要对目标仓库授予 `Contents: Read and write`
-  - Classic token：通常需要 `repo`（或仅公共仓库时可用 `public_repo`）
+**Note:**
+- Repo should be public for jsDelivr access
+- Upload path: `image/YYYYMMDDHHmmssSSS.<format>`
 
-注意：
-
-- 默认生成的 URL 形如 `https://cdn.jsdelivr.net/gh/<username>/<repo>@<branch>/image/...`，因此仓库一般需要是公开仓库（jsDelivr 才能访问）。
-- 上传路径固定为仓库根目录下的 `image/`，文件名为时间戳：`YYYYMMDDHHmmssSSS.<format>`。
-
-## 使用
-
-查看帮助：
+## Usage
 
 ```bash
+# View help
 upload-image --help
-```
 
-上传单张或多张图片：
-
-```bash
+# Upload images
 upload-image --files ./a.png ./b.jpg
+
+# Specify output format (default: webp)
+upload-image --files ./a.png -f jpeg
 ```
 
-指定输出格式（默认 `webp`）：
+**Options:**
+
+- `--files <files...>` - Image file paths
+- `-f, --format <format>` - Image format (default: `webp`, supports `webp`/`jpeg`/`png`/`avif`)
+- `-o, --output <format>` - Output format: `markdown`|`html`|`url`|`raw` (default: `raw`)
+
+**Output examples:**
 
 ```bash
-upload-image --files ./a.png -f webp
-```
-
-参数说明：
-
-- `--files <files...>`：图片文件路径列表（支持多个）
-- `-f, --format <format>`：输出格式（默认 `webp`；由 `sharp` 支持，常用如 `webp` / `jpeg` / `png` / `avif`）
-
-输出示例：
-
-```text
+# raw (default)
 upload success:
-https://cdn.jsdelivr.net/gh/your-github-name/your-repo@master/image/20260410123456789.webp
+https://cdn.jsdelivr.net/gh/your-name/your-repo@master/image/...
+
+# markdown
+![image](https://cdn.jsdelivr.net/gh/your-name/your-repo@master/image/...)
+
+# html
+<img src="https://cdn.jsdelivr.net/gh/your-name/your-repo@master/image/..." alt="image">
+
+# url
+https://cdn.jsdelivr.net/gh/your-name/your-repo@master/image/...
 ```
 
-## 日志
+## FAQ
 
-每次执行结束会追加写入日志文件 `log.txt`（位于本包的安装目录下），记录输入文件与输出 URL。
-
-## 常见问题
-
-- 提示“配置文件读取失败”
-  - 先执行 `upload-image init` 生成 `~/.upload-image-cli.json`，或按“配置”章节手动创建
-- 返回 `401/403`
-  - Token 权限不足、过期或未授权目标仓库；检查 token 权限与仓库访问范围
-- 返回 `404`
-  - `username/repo/branch` 配置错误，或 token 无权访问该仓库
-- 输出 URL 打不开
-  - jsDelivr 有缓存与同步延迟；也请确认仓库为公开仓库且分支名正确
+- **Config file error** → Run `upload-image init`
+- **401/403** → Check token permissions
+- **404** → Check username/repo/branch config
+- **URL not accessible** → Wait for jsDelivr sync (usually < 1min)
