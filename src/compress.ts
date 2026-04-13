@@ -1,17 +1,18 @@
-import sharp, { FormatEnum } from 'sharp'
+import * as sharp from 'sharp'
 
 export const compress = async (
   file: string,
   options: {
-    format: keyof FormatEnum
+    format: 'jpeg' | 'png' | 'webp' | 'gif' | 'svg' | 'tiff' | 'avif' | 'heif' | 'jp2'
   } = {
     format: 'webp',
   }
-) => {
+): Promise<Buffer> => {
   const { format } = options
-  const { density, width } = await sharp(file).metadata()
+  const instance = (sharp as any).default ? (sharp as any).default(file) : sharp(file)
+  const { density, width } = await instance.metadata()
 
-  let sharpFile = await sharp(file)
+  let sharpFile = instance
 
   if (density && width) {
     sharpFile = sharpFile.resize({

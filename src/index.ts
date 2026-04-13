@@ -1,29 +1,45 @@
 #!/usr/bin/env node
 
-import fs from 'fs'
-import path from 'path'
-import dayjs from 'dayjs'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import * as os from 'node:os'
+import * as readline from 'node:readline'
+
+import * as dayjs from 'dayjs'
 import axios from 'axios'
 import { program } from 'commander'
-import { compress } from './compress.ts'
-import os from 'os'
-import readline from 'readline'
-import Clipboard from '@mariozechner/clipboard'
+import * as Clipboard from '@mariozechner/clipboard'
+
+import { compress } from './compress'
 
 const configPath = path.join(os.homedir(), '.upload-image-cli.json')
 
 const readConfig = () => {
   const content = fs.readFileSync(configPath, 'utf8')
-  return JSON.parse(content)
+  return JSON.parse(content) as {
+    hosts?: {
+      github?: {
+        username?: string
+        repo?: string
+        branch?: string
+        token?: string
+      }
+    }
+  }
 }
 
-const getGithubConfig = () => {
-  let config
+const getGithubConfig = (): {
+  username: string
+  repo: string
+  branch: string
+  token: string
+} => {
+  let config: ReturnType<typeof readConfig>
   try {
     config = readConfig()
   } catch (err) {
     console.log(
-      `Failed to read config file: ${configPath}\nPlease run first: upload-image init\n\n${err?.message ?? err}`
+      `Failed to read config file: ${configPath}\nPlease run first: upload-image init\n\n${err instanceof Error ? err.message : err}`
     )
     process.exit(1)
   }
@@ -41,16 +57,27 @@ const getGithubConfig = () => {
     process.exit(1)
   }
 
-  return ghConfig
+  return ghConfig as {
+    username: string
+    repo: string
+    branch: string
+    token: string
+  }
 }
 
-const ask = async (rl, question) => {
+const ask = async (
+  rl: readline.Interface,
+  question: string
+): Promise<string> => {
   return await new Promise((resolve) => {
     rl.question(question, (answer) => resolve(answer))
   })
 }
 
-const askRequired = async (rl, question) => {
+const askRequired = async (
+  rl: readline.Interface,
+  question: string
+): Promise<string> => {
   while (true) {
     const answer = (await ask(rl, question)).trim()
     if (answer) return answer
@@ -158,9 +185,28 @@ program
   .option('-f, --format <format>', 'Image format', 'webp')
   .option('-o, --output <format>', 'Output format: markdown|html|url|raw')
 
-const upload = async (file, ghConfig, format) => {
-  const buffer = await compress(file, { format })
-  const filepath = `image/${dayjs().format('YYYYMMDDHHmmssSSS')}.${format}`
+const upload = async (
+  file: string,
+  ghConfig: ReturnType<typeof getGithubConfig>,
+  format: string
+): Promise<string> => {
+  const validFormats = [
+    'jpeg',
+    'png',
+    'webp',
+    'gif',
+    'svg',
+    'tiff',
+    'avif',
+    'heif',
+    'jp2',
+  ] as const
+  type ValidFormat = (typeof validFormats)[number]
+  const buffer = await compress(file, { format: format as ValidFormat })
+  const dayjsInstance = (dayjs as any).default
+    ? (dayjs as any).default()
+    : dayjs()
+  const filepath = `image/${dayjsInstance.format('YYYYMMDDHHmmssSSS')}.${format}`
   await axios({
     method: 'PUT',
     url: `https://api.github.com/repos/${ghConfig.username}/${ghConfig.repo}/contents/${filepath}`,
@@ -175,9 +221,13 @@ const upload = async (file, ghConfig, format) => {
   return `https://cdn.jsdelivr.net/gh/${ghConfig.username}/${ghConfig.repo}@${ghConfig.branch}/${filepath}`
 }
 
-const uploadFiles = async (files, format, output) => {
+const uploadFiles = async (
+  files: string[],
+  format: string,
+  output: string
+): Promise<void> => {
   const ghConfig = getGithubConfig()
-  const urls = []
+  const urls: string[] = []
   for (const file of files) {
     try {
       const url = await upload(file, ghConfig, format)
@@ -227,7 +277,10 @@ const getClipboardImage = async () => {
       throw new Error('No image found in clipboard')
     }
   } catch (err) {
-    console.error('Failed to read image from clipboard:', err.message)
+    console.error(
+      'Failed to read image from clipboard:',
+      err instanceof Error ? err.message : err
+    )
     throw err
   }
 }

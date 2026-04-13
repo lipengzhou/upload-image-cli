@@ -1,18 +1,25 @@
 {
   "name": "@lipengzhou/upload-image-cli",
-  "version": "0.0.3",
+  "version": "0.0.10",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lipengzhou/upload-image-cli"
+  },
   "description": "A command line tool for uploading images to the GitHub repository",
   "scripts": {
-    "build": "pkgroll",
-    "dev": "pkgroll --watch"
+    "build": "tsc --build",
+    "dev": "tsc --watch"
   },
   "bin": {
-    "upload-image": "./dist/index.mjs"
+    "upload-image": "./dist/index.js"
   },
   "keywords": [
     "upload",
     "github",
     "image"
+  ],
+  "files": [
+    "dist"
   ],
   "author": "lpzmail@163.com",
   "license": "MIT",
@@ -25,7 +32,6 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
-    "pkgroll": "^2.27.0",
-    "tsx": "^4.21.0"
+    "typescript": "^5.9.3"
   }
 }
