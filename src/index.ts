@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 
-import * as fs from 'node:fs'
-import * as path from 'node:path'
-import * as os from 'node:os'
-import * as readline from 'node:readline'
+import fs from 'node:fs'
+import path from 'node:path'
+import os from 'node:os'
+import readline from 'node:readline'
 
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 import axios from 'axios'
 import { program } from 'commander'
-import * as Clipboard from '@mariozechner/clipboard'
+import Clipboard from '@mariozechner/clipboard'
 
 import { compress } from './compress'
+
+import pkg from '../package.json'
 
 const configPath = path.join(os.homedir(), '.upload-image-cli.json')
 
@@ -174,6 +176,7 @@ const initConfig = async () => {
 }
 
 program
+  .version(pkg.version)
   .command('init')
   .description('Generate config file interactively in user directory')
   .action(async () => {
@@ -203,10 +206,7 @@ const upload = async (
   ] as const
   type ValidFormat = (typeof validFormats)[number]
   const buffer = await compress(file, { format: format as ValidFormat })
-  const dayjsInstance = (dayjs as any).default
-    ? (dayjs as any).default()
-    : dayjs()
-  const filepath = `image/${dayjsInstance.format('YYYYMMDDHHmmssSSS')}.${format}`
+  const filepath = `image/${dayjs().format('YYYYMMDDHHmmssSSS')}.${format}`
   await axios({
     method: 'PUT',
     url: `https://api.github.com/repos/${ghConfig.username}/${ghConfig.repo}/contents/${filepath}`,

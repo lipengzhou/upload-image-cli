@@ -1,4 +1,4 @@
-import * as sharp from 'sharp'
+import sharp from 'sharp'
 
 export const compress = async (
   file: string,
@@ -9,7 +9,7 @@ export const compress = async (
   }
 ): Promise<Buffer> => {
   const { format } = options
-  const instance = (sharp as any).default ? (sharp as any).default(file) : sharp(file)
+  const instance = sharp(file)
   const { density, width } = await instance.metadata()
 
   let sharpFile = instance

@@ -22,7 +22,7 @@
 
     // Stricter Typechecking Options
     // "noUncheckedIndexedAccess": true,
-    // "exactOptionalPropertyTypes": true,
+    // "exact"optionalPropertyTypes": true,
 
     // Style Options
     // "noImplicitReturns": true,
@@ -40,5 +40,11 @@
     // "noUncheckedSideEffectImports": true,
     // "moduleDetection": "force",
     // "skipLibCheck": true,
+
+    // 允许 import JSON
+    "resolveJsonModule": true,
+
+    // 兼容 CommonJS 默认导入
+    "esModuleInterop": true
   }
 }

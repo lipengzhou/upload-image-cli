@@ -9,7 +9,9 @@
       "Bash(npm view:*)",
       "WebFetch(domain:github.com)",
       "Bash(npm install:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(node:*)"
     ]
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@lipengzhou/upload-image-cli",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "repository": {
     "type": "git",
     "url": "https://github.com/lipengzhou/upload-image-cli"
