@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const path = require('path')
-const dayjs = require('dayjs')
-const axios = require('axios')
-const { program } = require('commander')
-const { compress } = require('./compress')
-const os = require('os')
-const readline = require('readline')
-const Clipboard = require('@mariozechner/clipboard')
+import fs from 'fs'
+import path from 'path'
+import dayjs from 'dayjs'
+import axios from 'axios'
+import { program } from 'commander'
+import { compress } from './compress.ts'
+import os from 'os'
+import readline from 'readline'
+import Clipboard from '@mariozechner/clipboard'
 
 const configPath = path.join(os.homedir(), '.upload-image-cli.json')
 
@@ -105,7 +105,10 @@ const initConfig = async () => {
   try {
     if (fs.existsSync(configPath)) {
       const overwrite = (
-        await ask(rl, `Config file already exists: ${configPath}\nOverwrite? (y/N) `)
+        await ask(
+          rl,
+          `Config file already exists: ${configPath}\nOverwrite? (y/N) `
+        )
       )
         .trim()
         .toLowerCase()
@@ -117,7 +120,9 @@ const initConfig = async () => {
 
     const username = await askRequired(rl, 'GitHub username/organization: ')
     const repo = await askRequired(rl, 'Repo name: ')
-    const branchInput = (await ask(rl, 'Branch name (default: master): ')).trim()
+    const branchInput = (
+      await ask(rl, 'Branch name (default: master): ')
+    ).trim()
     const branch = branchInput || 'master'
     const token = await askRequired(rl, 'GitHub Token: ')
 
@@ -183,11 +188,23 @@ const uploadFiles = async (files, format, output) => {
   }
 
   if (output === 'markdown') {
-    console.log(urls.map(url => `
-![image](${url})`).join('\n'))
+    console.log(
+      urls
+        .map(
+          (url) => `
+![image](${url})`
+        )
+        .join('\n')
+    )
   } else if (output === 'html') {
-    console.log(urls.map(url => `
-<img src="${url}" alt="image">`).join('\n'))
+    console.log(
+      urls
+        .map(
+          (url) => `
+<img src="${url}" alt="image">`
+        )
+        .join('\n')
+    )
   } else if (output === 'url') {
     console.log(urls.join('\n'))
   } else {

@@ -2,8 +2,12 @@
   "name": "@lipengzhou/upload-image-cli",
   "version": "0.0.3",
   "description": "A command line tool for uploading images to the GitHub repository",
+  "scripts": {
+    "build": "pkgroll",
+    "dev": "pkgroll --watch"
+  },
   "bin": {
-    "upload-image": "./index.js"
+    "upload-image": "./dist/index.mjs"
   },
   "keywords": [
     "upload",
@@ -18,5 +22,10 @@
     "commander": "^11.1.0",
     "dayjs": "^1.11.10",
     "sharp": "^0.33.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "pkgroll": "^2.27.0",
+    "tsx": "^4.21.0"
   }
 }
